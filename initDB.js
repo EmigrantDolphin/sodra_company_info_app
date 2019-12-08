@@ -2,14 +2,16 @@ const mysql = require('mysql');
 const readline = require('readline');
 
 async function connect(){
-    let mysqlCon;
+    let mysqlCon = null;
     let dbHost, dbUser, dbPass;
-    console.log("__database info__\n");
-    //dbHost = await consoleQuestion("db Host: ");
-    //dbUser = await consoleQuestion("db User: ");
-    //dbPass = await consoleQuestion("db Password: ");
-    mysqlCon = await connectToMysql("localhost", "root", "uncrackablePassword");
-
+    while(mysqlCon === null){
+        console.log("__database info__\n");
+        dbHost = await consoleQuestion("db Host: ");
+        dbUser = await consoleQuestion("db User: ");
+        dbPass = await consoleQuestion("db Password: ");
+        //mysqlCon = await connectToMysql("localhost", "root", "uncrackablePassword");
+        mysqlCon = await connectToMysql(dbHost, dbUser, dbPass);
+    }
     return mysqlCon
 }
 
@@ -24,6 +26,7 @@ function connectToMysql(host, user, pass){
         mysqlCon.connect((err) => {
             if (err) {
                 console.error("can't connect: "+ err.message);
+                resolve(null);
                 return;
             }
             console.log("connected to DB!!");

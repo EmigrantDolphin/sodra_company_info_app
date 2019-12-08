@@ -7,14 +7,11 @@ const http = require('http');
 var securePath = "";
 const URLFILE = "./fileUrls.json";
 const TABLEDATAFILE = "./tableData.json";
-var tableData = []; // {tablename, columnNames}
 
 function getTableData(){
     return new Promise((resolve, reject)=>{
-        if (tableData.length === 0){
-            const rawdata = fs.readFileSync(TABLEDATAFILE);
-            tableData = JSON.parse(rawdata);
-        }
+        const rawdata = fs.readFileSync(TABLEDATAFILE);
+        const tableData = JSON.parse(rawdata);
         resolve(tableData);
     });
 }
@@ -90,9 +87,11 @@ function zipToMysql (zipPath, urlFileData, mysqlCon){
             stream.pipe(fs.createWriteStream(securePath+entry.name))
             .on('finish', ()=>{
                 console.log("unzipped to: "+entry.name);
-                loadFileToDatabase(entry.name, urlFileData, mysqlCon);
-                //fs.unlink(securePath+entry.name);
-                //fs.unlink(zipPath);
+                loadFileToDatabase(entry.name, urlFileData, mysqlCon).then(()=>{
+                    fs.unlink(securePath+entry.name, (err)=>{if (err) console.error(err)});
+                    fs.unlink(zipPath, (err)=>{if (err) console.error(err)});
+                });
+                
             })
             
         });
@@ -101,11 +100,19 @@ function zipToMysql (zipPath, urlFileData, mysqlCon){
 
 async function loadFileToDatabase(fileName, urlFileData, mysqlCon){
     columnNames = await getColumnNamesCsv(securePath+fileName);
-    tableData[tableData.length] = {
+    // append table data to file     
+    const tableData = {
         tableName : urlFileData.tableName,
         columnNames : columnNames
     }
-
+    const rawdata = fs.readFileSync(TABLEDATAFILE);
+    const fileTableData = JSON.parse(rawdata);
+    if (!fileTableData.includes(tableData)){
+        fileTableData.push(tableData);
+        fs.writeFileSync(TABLEDATAFILE, JSON.stringify(fileTableData));
+    }
+    
+    //loading to sql 
     let sql = `
     DROP TABLE IF EXISTS ${urlFileData.tableName}
     `;
@@ -183,5 +190,5 @@ function getColumnInstantiations(columnNames){ //string of varchar tables separa
 
 module.exports = {
     update : update,
-    tableData : tableData
+    getTableData : getTableData
 };

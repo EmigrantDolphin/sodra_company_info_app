@@ -7,11 +7,12 @@ const path = require('path');
 const PORT = 3212;
 let db;
 
-connectToDb();
-async function connectToDb(){
+main();
+async function main(){
     db = await initDB();
     await sodraUpdater.update(db); // this await does nothing FFS
     db.query("USE sodra_info");
+    app.listen(PORT, () => console.log(`Server app listening on port ${PORT}!`));
 }
 
 
@@ -24,23 +25,38 @@ app.get('/', async function(req, res){
 
 app.post('/ass', async function(req, res){
     console.log(req.body);
-    let ans = []
-    for (let i = 0; i < sodraUpdater.tableData.length; i++){
-        const sql =`
-        SELECT * 
-        FROM ${sodraUpdater.tableData[i].tableName} 
-        WHERE \`${sodraUpdater.tableData[i].columnNames[0]}\` = '${req.body.code}'
-        `;
-        await db.query(sql, (err1, res1)=>{
-            if (err1){
-                console.error(err);
-                return;
-            }
-            ans[i] = res1;
-        });
-    }
-    res.send(ans);
+    
+    getInfo(req).then((ans)=>{
+        console.log(ans);
+        res.send(ans);
+    });
+
 });
 
-
-app.listen(PORT, () => console.log(`Server app listening on port ${PORT}!`));
+function getInfo(req){
+    return new Promise(async (resolve, reject)=>{
+        const tableData = await sodraUpdater.getTableData();
+        let ans = [];
+        for (let i = 0; i < tableData.length; i++){
+            const sql =`
+            SELECT * 
+            FROM ${tableData[i].tableName} 
+            WHERE \`${tableData[i].columnNames[0]}\` = '${req.body.code}'
+            `;
+            db.query(sql, (err1, res1)=>{
+                if (err1){
+                    console.error(err1);
+                    return;
+                }
+                if (res1.length !== 0){
+                    ans[i] = {
+                        tableName : tableData[i].tableName,
+                        tableRows : res1
+                    }
+                }
+                if (i === tableData.length-1)
+                    resolve(ans);
+            });
+        }
+    });
+}

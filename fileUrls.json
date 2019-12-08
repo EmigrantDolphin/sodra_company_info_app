@@ -2,5 +2,13 @@
 {
     "tableName":"daily_2019_09",
     "url":"http://atvira.sodra.lt/imones/downloads/2019/daily-2019-09.csv.zip"
+},
+{
+    "tableName":"daily_2019_10",
+    "url":"http://atvira.sodra.lt/imones/downloads/2019/daily-2019-10.csv.zip"
+},
+{
+    "tableName":"monthly_2019",
+    "url":"http://atvira.sodra.lt/imones/downloads/2019/monthly-2019.csv.zip"
 }
 ]

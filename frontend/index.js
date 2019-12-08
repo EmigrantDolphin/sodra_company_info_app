@@ -1,4 +1,7 @@
 
+var selectedComboBoxIndex = 0;
+var json = [];
+
 async function fetchData(){
     const companyCode = document.getElementById("companyTextField").value;
     
@@ -9,26 +12,52 @@ async function fetchData(){
             'Content-Type': 'application/json'
         }
     });
-    const json = await response.json();
-    
-    const contentDiv = document.getElementById("companyContent");
-    contentDiv.innerHTML = "";
+    json = await response.json(); // [{tableName, tableRows[]}]
     
     if (json.length === 0){
         contentDiv.innerHTML += "Įmonė nerasta";
         return;
     }
-    for (let i = 0; i < json.length; i++){
+    createTableComboBox();
+    fillCompanyContent();
+    
+}
+
+function fillCompanyContent(){
+    const contentDiv = document.getElementById("companyContent");
+    contentDiv.innerHTML = "";
+    //array of arrays of objects. [tables][{tableName, rows[]}]
+    for (let j = 0; j < json[selectedComboBoxIndex].tableRows.length; j++){
         contentDiv.innerHTML +=`
         <div>
-            ${Object.keys(json[i]).map((key)=>{return "<div>"+key +": " + json[i][key] + ". </div>"}).join('')}
+            ${Object.keys(json[selectedComboBoxIndex].tableRows[j]).map((key)=>{return "<div>"+key +": " + json[selectedComboBoxIndex].tableRows[j][key] + ". </div>"}).join('')}
         </div>
         <hr>
         `
     }
-    
 }
 
 function onCompanyTextFieldKeyUp(){
-    console.log(document.getElementById("companyTextField").value);
+    //console.log(document.getElementById("companyTextField").value);
+}
+
+function onTableComboBoxChange(){
+    const tableComboBox = document.getElementById("tableComboBox");
+    selectedComboBoxIndex = tableComboBox.value;
+    fillCompanyContent();
+}
+
+function createTableComboBox(){
+    const tableComboBoxDiv = document.getElementById("tableComboBoxDiv");
+    tableComboBoxDiv.innerHTML = "";
+    let texts = [];
+    json.forEach((table)=>{texts.push(table.tableName)});
+
+    tableComboBoxDiv.innerHTML += 
+    `
+    <select onchange="onTableComboBoxChange()" id="tableComboBox">
+        ${texts.map((text, index)=>{return `<option value="${index}">${text}</option>`})}
+    </select>
+    `;
+    
 }
