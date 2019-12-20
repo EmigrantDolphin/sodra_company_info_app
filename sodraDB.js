@@ -43,7 +43,9 @@ async function init(){
         dbLoginInfo.password = await consoleQuestion("db Password: ");
         updateConnection = await connectDB(dbLoginInfo);
     }
-    await createDatabaseIfNotExists(DBNAME, updateConnection);
+    
+    await sqlQuery(updateConnection, `CREATE DATABASE IF NOT EXISTS ${DBNAME}`);
+    await sqlQuery(updateConnection, `USE ${DBNAME}`);
 
     queryConnection = await connectDB(dbLoginInfo);
     await sqlQuery(queryConnection, `USE ${DBNAME}`);
@@ -54,7 +56,6 @@ async function update(){
         return;
     updating = true;
     const mysqlCon = updateConnection;
-    await sqlQuery(mysqlCon, `USE ${DBNAME}`);
     const secureFolderPath = await getSecurePath(mysqlCon);
     const urlFileData = await getUrlFileData();
     let updateUrlFileData = false;
@@ -131,14 +132,6 @@ function deleteFile(filePath){
     });
 }
 
-async function createDatabaseIfNotExists(name, mysqlCon){
-    let sql = `CREATE DATABASE IF NOT EXISTS ${name}`;
-    await sqlQuery(mysqlCon, sql);
-
-    sql = `USE ${name}`;
-    await sqlQuery(mysqlCon, sql);
-}
-
 function downloadFile(fileUrl, fileName){
     return new Promise((resolve, reject) => {        
         const file = fs.createWriteStream(fileName);
@@ -180,8 +173,6 @@ function unzipFile(zipPath, unzipFolderPath){
 }
 
 async function loadToDB(filePath, tableName, columnNames, mysqlCon){
-    //loading to sql 
-
     let sql = `DROP TABLE IF EXISTS \`${tableName}\``;
     await sqlQuery(mysqlCon, sql);
     /////
