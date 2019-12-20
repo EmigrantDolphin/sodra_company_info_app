@@ -8,7 +8,7 @@ const tableComboBoxDiv = document.getElementById("tableComboBoxDiv");
 async function fetchData(){
     const companyCode = document.getElementById("companyTextField").value;
     
-    const response = await fetch("/ass", {
+    const response = await fetch("/companyInfo", {
         method: "POST",
         body: JSON.stringify({code: companyCode}),
         headers: {
@@ -81,7 +81,7 @@ function downloadCsv(){
 }
 
 async function onCompanyTextFieldKeyUp(){
-    const response = await fetch("/boobs", {
+    const response = await fetch("/companyCodePrediction", {
         method: "POST",
         body: JSON.stringify({
             unfinishedCode : document.getElementById("companyTextField").value,

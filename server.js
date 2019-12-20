@@ -39,14 +39,14 @@ app.get('/', async function(req, res){
     res.sendFile(path.join(__dirname,'index.html'));
 });
 
-app.post('/ass', async function(req, res){
+app.post('/companyInfo', async function(req, res){
     getInfo(req).then((ans)=>{
         //console.log(ans[0]);
         res.send(ans);
     });
 });
 
-app.post('/boobs', async function(req, res){
+app.post('/companyCodePrediction', async function(req, res){
     getFullCodes(req.body.unfinishedCode, req.body.count).then((ans)=>{
         res.send(ans);
     });
