@@ -22,7 +22,8 @@ second file (montly_2019) loads in about 1 minute.
 App: <br> 
 uses MySQL.<br>
 creates schema called "sodra_info" on first launch.<br>
-uses 'secure_file_priv' path for LOAD DATA INFILE (loading file to db)<br>
+uses 'secure_file_priv' path for `LOAD DATA INFILE` (loading file to db)<br>
+uses `DROP`, `CREATE`, `RENAME`, `SELECT`, `USE` and `LOAD DATA INFILE` sql commands
 
 ### db updating
 ```fileUrls.json``` contains info about 'sodra' files. Which ones are loaded to db and which ones are to be updated daily. Currently ```dailyUpdate``` parameter needs to be changed manually. <br>
