@@ -8,8 +8,9 @@ const URLFILE = "./fileUrls.json";
 const TABLEDATAFILE = "./tableData.json";
 const DBNAME = "sodra_info";
 
-var updateConnection; // for loading files to db
-var queryConnection;  // for web page queries
+let updateConnection; // for loading files to db
+let queryConnection;  // for web page queries
+let updating = false; //make sure only one update at a time
 
 let dbLoginInfo = {  // {host, user, password}
     host : "localhost",
@@ -49,6 +50,9 @@ async function init(){
 }
 
 async function update(){
+    if (updating)
+        return;
+    updating = true;
     const mysqlCon = updateConnection;
     await sqlQuery(mysqlCon, `USE ${DBNAME}`);
     const secureFolderPath = await getSecurePath(mysqlCon);
@@ -62,8 +66,8 @@ async function update(){
             await downloadFile(urlFileData[i].url, downloadFilePath);
             const unzippedFileName = await unzipFile(downloadFilePath, secureFolderPath);
             const columnNames = await getColumnNamesCsv(secureFolderPath + unzippedFileName);
-            await appendToTableDataFile(urlFileData[i].tableName, columnNames);
             await loadToDB(secureFolderPath + unzippedFileName, urlFileData[i].tableName, columnNames, mysqlCon);
+            await appendToTableDataFile(urlFileData[i].tableName, columnNames);
             
             urlFileData[i].loaded = true;
             deleteFile(secureFolderPath + unzippedFileName);
@@ -76,10 +80,6 @@ async function update(){
             await downloadFile(urlFileData[i].url, downloadFilePath);
             const unzippedFileName = await unzipFile(downloadFilePath, secureFolderPath)
             const columnNames = await getColumnNamesCsv(secureFolderPath + unzippedFileName);
-
-            let sql = `DROP TABLE IF EXISTS \`${tempTableName}\``;
-            await sqlQuery(mysqlCon, sql);
-            console.log(`Created table: ${tempTableName}`);
 
             await loadToDB(secureFolderPath + unzippedFileName, tempTableName, columnNames, mysqlCon);
             
@@ -96,6 +96,7 @@ async function update(){
         }
     if (updateUrlFileData)
         fs.writeFileSync(URLFILE, JSON.stringify(urlFileData, null, 4));
+    updating = false;
 }
 
 function appendToTableDataFile(tableName, columnNames){
@@ -180,7 +181,11 @@ function unzipFile(zipPath, unzipFolderPath){
 
 async function loadToDB(filePath, tableName, columnNames, mysqlCon){
     //loading to sql 
-    let sql = `
+
+    let sql = `DROP TABLE IF EXISTS \`${tableName}\``;
+    await sqlQuery(mysqlCon, sql);
+    /////
+    sql = `
     CREATE TABLE IF NOT EXISTS ${tableName} 
     (${ await getColumnInstantiations(columnNames)})
     `;

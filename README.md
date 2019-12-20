@@ -5,8 +5,21 @@ Project for BA Challenge <br>
 prettier frontend? <br>
 proper error handling? <br>
 
-
-
 ## info
-App uses MySQL.
-App creates schema called "sodra_info" on first launch
+# be aware
+On first launch, 2 files (add more in fileUrls.json) will download and load to DB. <br>
+first file (daily_2019_10) loads to db in about 4 minutes with ssd. (old cpu)<br>
+second file (montly_2019) loads in about 1 minute.
+
+# database
+App: <br> 
+uses MySQL.<br>
+creates schema called "sodra_info" on first launch.<br>
+uses 'secure_file_priv' path for LOAD DATA INFILE (loading file to db)<br>
+
+# db updating
+```fileUrls.json``` contains info about 'sodra' files. Which ones are loaded to db and which ones are to be updated daily. Currently ```dailyUpdate``` parameter needs to be changed manually. <br>
+<br>
+```tableData.json``` contents are filled automatically with table and column names for storing and easy access.
+<br>
+Tables with ```dailyUpdate``` param are updated daily at midnight or when server is launched second+ time

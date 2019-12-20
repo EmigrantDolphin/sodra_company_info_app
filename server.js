@@ -77,7 +77,9 @@ async function getInfo(req){
 
 async function getFullCodes(unfinishedCode, count){
 
-    const tableData = await sodraDB.getTableData();   
+    const tableData = await sodraDB.getTableData();
+    if (tableData.length === 0)
+        return []; 
     const sql = `
     SELECT \`${tableData[0].columnNames[0]}\`
     FROM \`${tableData[0].tableName}\`

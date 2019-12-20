@@ -98,8 +98,10 @@ async function onCompanyTextFieldKeyUp(){
             Object.keys(respJson[0]).map((key)=>{
                 return respJson[0][key];
             });
-    }else
+    }else{
         codePredictionDiv.innerHTML = "";
+        console.log("empty");
+    }
     
 }
 
