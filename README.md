@@ -1,6 +1,13 @@
 # Sodra "info about company" app
 Project for BA Challenge <br>
 
+## Installation
+#### `npm install` 
+to install dependencies <br>
+#### `npm start` 
+to run the app <br><br>
+App will ask for ```localhost```, ```user``` and ```password``` of the database
+
 ## to do
 prettier frontend? <br>
 proper error handling? <br>
