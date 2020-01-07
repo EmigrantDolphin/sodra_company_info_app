@@ -13,6 +13,7 @@ prettier frontend? <br>
 proper error handling? <br>
 
 ## info
+Server starts on http://localhost:3212/
 ### be aware
 On first launch, 2 files (add more in fileUrls.json) will download and load to DB. <br>
 first file (daily_2019_10) loads to db in about 4 minutes with ssd. (old cpu)<br>
