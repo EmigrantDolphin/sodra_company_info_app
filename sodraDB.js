@@ -133,7 +133,7 @@ function deleteFile(filePath){
 }
 
 function downloadFile(fileUrl, fileName){
-    return new Promise((resolve, reject) => {        
+    return new Promise((resolve, reject) => {       
         const file = fs.createWriteStream(fileName);
         console.log("Downloading " + fileUrl);
         http.get(fileUrl, async (res) =>{
@@ -165,6 +165,7 @@ function unzipFile(zipPath, unzipFolderPath){
                 stream.pipe(fs.createWriteStream(unzipFolderPath + entry.name))
                 .on("finish", () => {
                     console.log("unzipped to: " + unzipFolderPath + entry.name);
+                    zip.close();                  
                     resolve(entry.name);
                 });
             });
@@ -221,12 +222,13 @@ async function query(sql, params){
 
 function getColumnNamesCsv(fullPath){
     return new Promise((resolve, reject)=>{
+        const file = fs.createReadStream(fullPath);
         const readInterface = readline.createInterface({
-            input: fs.createReadStream(fullPath),
+            input: file,
             console: false
         });
- 
-        readInterface.on('line', (line)=>{
+
+        readInterface.on('line', async (line)=>{
             const columnNames = line.split(";");
             let answer = [];
             for (let i = 0; i < columnNames.length; i++){
@@ -234,6 +236,7 @@ function getColumnNamesCsv(fullPath){
                 answer[i] = columnNames[i];
             }
             readInterface.close();
+            file.close();          
             resolve(answer);
         });  
     });
